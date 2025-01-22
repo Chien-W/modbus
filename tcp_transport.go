@@ -1,7 +1,6 @@
 package modbus
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -186,7 +185,7 @@ func (tt *tcpTransport) readMBAPFrame() (p *pdu, txnId uint16, err error) {
 
 	_, err = io.ReadAll(tt.socket)
 	if err != nil {
-		if errors.Is(err, io.EOF) {
+		if err.(net.Error).Timeout() {
 			err = nil
 			return
 		}
