@@ -183,15 +183,18 @@ func (tt *tcpTransport) readMBAPFrame() (p *pdu, txnId uint16, err error) {
 		payload:      rxbuf[1:],
 	}
 
-	_, err = io.ReadAll(tt.socket)
-	if err != nil {
-		if err.(net.Error).Timeout() {
-			err = nil
+	if err = tt.socket.SetReadDeadline(time.Now().Add(time.Millisecond)); err != nil {
+		return
+	} else {
+		_, err = io.ReadAll(tt.socket)
+		if err != nil {
+			if err.(net.Error).Timeout() {
+				err = nil
+				return
+			}
 			return
 		}
-		return
 	}
-
 	return
 }
 
